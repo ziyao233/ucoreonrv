@@ -1,0 +1,8 @@
+*.o
+*.elf
+*.a
+*.img
+
+src/disk0/*
+src/bin/*
+src/obj/*
