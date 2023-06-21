@@ -2,6 +2,7 @@ PROJ	:= src
 EMPTY	:=
 SPACE	:= $(EMPTY) $(EMPTY)
 SLASH	:= /
+OPENSBI	:= ./fw_jump.bin
 
 V       := @
 
@@ -265,15 +266,16 @@ qemu: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 	$(V)$(QEMU) \
 		-machine virt \
 		-nographic \
-		-bios default \
+		-bios $(OPENSBI) \
 		-device loader,file=$(UCOREIMG),addr=0x80200000
 
 debug: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 	$(V)$(QEMU)						\
 		-machine virt					\
-		-nographic					\	
-		-bios default					\
-		-device loader,file=$(UCOREIMG),addr=0x80200000
+		-nographic					\
+		-bios $(OPENSBI)				\
+		-device loader,file=$(UCOREIMG),addr=0x80200000	\
+		-S -s
 
 spike: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 	$(V)$(SPIKE) $(UCOREIMG)
