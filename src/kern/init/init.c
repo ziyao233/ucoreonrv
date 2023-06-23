@@ -19,10 +19,25 @@ int kern_init(void) __attribute__((noreturn));
 void grade_backtrace(void);
 static void lab1_switch_test(void);
 
+static void
+clean_up_trampoline(void)
+{
+	extern char boot_page_table_sv39;
+	void *pt = (void*)(&boot_page_table_sv39);
+	asm volatile(
+	"sd		zero,			16(%0)\n\t"
+	"sfence.vma"
+	: : "r" (&boot_page_table_sv39));
+	return;
+}
+
 int
 kern_init(void) {
     extern char edata[], end[];
     memset(edata, 0, end - edata);
+
+    clean_up_trampoline();
+
     cons_init();                // init the console
 
     const char *message = "(THU.CST) os is loading ...";
@@ -30,7 +45,7 @@ kern_init(void) {
 
     print_kerninfo();
 
-    // grade_backtrace();
+//    grade_backtrace();
 
     pmm_init();                 // init physical memory management
 

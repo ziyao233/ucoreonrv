@@ -23,9 +23,14 @@ kern_entry:
     sfence.vma
     # 从此，我们给内核搭建出了一个完美的虚拟内存空间！
     #nop # 可能映射的位置有些bug。。插入一个nop
-    
+
+    li		t1,		1 << 18
+    csrr	t0,		sstatus
+    or		t0,		t0,		t1
+    csrw	sstatus,	t0
+
     # 我们在虚拟内存空间中：随意将 sp 设置为虚拟地址！
-    lui sp, %hi(bootstacktop)
+    lui		sp,		%hi(bootstacktop)
 
     # 我们在虚拟内存空间中：随意跳转到虚拟地址！
     # 跳转到 kern_init
@@ -50,6 +55,9 @@ bootstacktop:
 boot_page_table_sv39:
     # 0xffffffff_c0000000 map to 0x80000000 (1G)
     # 前 511 个页表项均设置为 0 ，因此 V=0 ，意味着是空的(unmapped)
-    .zero 8 * 511
+    .quad 0
+    .quad 0
+    .quad (0x80000 << 10) | 0xcf
+    .zero 8 * 508
     # 设置最后一个页表项，PPN=0x80000，标志位 VRWXAD 均为 1
     .quad (0x80000 << 10) | 0xcf # VRWXAD

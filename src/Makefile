@@ -7,7 +7,7 @@ OPENSBI	:= ./fw_jump.bin
 V       := @
 
 ifndef GCCPREFIX
-GCCPREFIX := riscv64-unknown-linux-musl-
+GCCPREFIX := riscv-none-elf-
 endif
 
 ifndef QEMU
@@ -31,8 +31,8 @@ HOSTCFLAGS	:= -Wall -O2
 GDB		:= $(GCCPREFIX)gdb
 
 CC		:= $(GCCPREFIX)gcc
-CFLAGS  := -mcmodel=medany -O2 -std=gnu99 -Wno-unused
-CFLAGS	+= -fno-builtin -Wall -nostdinc $(DEFS)
+CFLAGS  := -mcmodel=medany -O0 -std=gnu99 -Wno-unused -g
+CFLAGS	+= -fno-builtin -Wall -nostdinc $(DEFS) -march=rv64gc -mabi=lp64d
 CFLAGS	+= -fno-stack-protector -ffunction-sections -fdata-sections
 CTYPE	:= c S
 
@@ -161,7 +161,7 @@ $(SFSROOT):
 	$(V)$(MKDIR) $@
 
 $(SFSIMG): $(SFSROOT) $(SFSBINS) | $(call totarget,mksfs)
-	$(V)dd if=/dev/zero of=$@ bs=1kB count=480
+	$(V)dd if=/dev/zero of=$@ bs=1kB count=2048
 	@$(call totarget,mksfs) $@ $(SFSROOT)
 
 $(call create_target,sfs.img)
@@ -265,6 +265,7 @@ qemu: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 #	$(V)$(QEMU) -kernel $(UCOREIMG) -nographic
 	$(V)$(QEMU) \
 		-machine virt \
+		-m 256m \
 		-nographic \
 		-bios $(OPENSBI) \
 		-device loader,file=$(UCOREIMG),addr=0x80200000
@@ -272,6 +273,7 @@ qemu: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 debug: $(UCOREIMG) $(SWAPIMG) $(SFSIMG)
 	$(V)$(QEMU)						\
 		-machine virt					\
+		-m 256m						\
 		-nographic					\
 		-bios $(OPENSBI)				\
 		-device loader,file=$(UCOREIMG),addr=0x80200000	\

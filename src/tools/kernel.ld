@@ -2,6 +2,7 @@
    See the GNU ld 'info' manual ("info ld") to learn the syntax. */
 
 OUTPUT_ARCH(riscv)
+OUTPUT_FORMAT(elf64-littleriscv)
 ENTRY(kern_entry)
 
 BASE_ADDRESS = 0xFFFFFFFFC0200000;
